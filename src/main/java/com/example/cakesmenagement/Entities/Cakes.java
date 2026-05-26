@@ -1,6 +1,7 @@
 package com.example.cakesmenagement.Entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -24,8 +25,9 @@ public class Cakes {
     private String imageUrl; // תמונה
     @ElementCollection
     private List<String> recommendation;
-    private boolean isActive; // אם העוגה זמינה למכירה
+    @JsonProperty("isActive")
+    private boolean isActive;// אם העוגה זמינה למכירה
     @ManyToOne
-    @JsonIgnore
-    private  Categories category;
+    @JoinColumn(name = "category_code") // מומלץ לתת שם ברור לעמודה
+    private Categories category;
 }

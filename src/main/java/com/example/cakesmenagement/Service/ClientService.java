@@ -44,7 +44,7 @@ public class ClientService {
         u.setEmail(request.getEmail());
         u.setPhoneNumber(request.getPhoneNumber());
         u.setPassword(passwordEncoder.encode(request.getPassword()));
-        u.setRole("ROLE_ADMIN");
+        u.setRole("ROLE_USER");
         return usersRepo.save(u);
     }
     @Autowired
