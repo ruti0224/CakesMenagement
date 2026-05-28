@@ -17,6 +17,7 @@ import java.util.List;
 @Entity
 public class Cakes {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
     private String name;
     private String description;

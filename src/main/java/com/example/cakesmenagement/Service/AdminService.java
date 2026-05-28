@@ -47,7 +47,7 @@ public class AdminService {
         }
 
         // 3. מייצרים ומחזירים את הטוקן
-        return jwtUtil.generateToken(user.getEmail(), user.getRole());
+        return jwtUtil.generateToken(user.getEmail(), user.getRole(), user.getCode());
     }
     public void deleteUser(int id) {
         Users user = usersRepo.findById(id)
@@ -159,11 +159,12 @@ public class AdminService {
         Cakes existingCake = cakesRepo.findById(id)
                 .orElseThrow(() -> new RuntimeException("עוגה לא נמצאה לעדכון"));
 
-        // עדכון השדות הרלוונטיים
         existingCake.setName(updatedCake.getName());
         existingCake.setPrice(updatedCake.getPrice());
         existingCake.setDescription(updatedCake.getDescription());
         existingCake.setImageUrl(updatedCake.getImageUrl());
+        existingCake.setIngredients(updatedCake.getIngredients());
+        existingCake.setActive(updatedCake.isActive());
 
         return cakesRepo.save(existingCake);
     }

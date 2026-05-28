@@ -15,10 +15,11 @@ public class JwtUtil {
     // 🔑 מפתח סודי לחתימה על הטוקן
     private final SecretKey key = Keys.secretKeyFor(SignatureAlgorithm.HS256);
 
-    public String generateToken(String email, String role) {
+    public String generateToken(String email, String role, int userId) {
         return Jwts.builder()
-                .setSubject(email)                  // זיהוי המשתמש
-                .claim("role", role)                // התפקיד שלו
+                .setSubject(email)
+                .claim("role", role)
+                .claim("userId", userId)
                 .setIssuedAt(new Date())            // תאריך יצירה
                 .setExpiration(new Date(System.currentTimeMillis() + 13*1000 * 60 * 60)) // שעה תוקף
                 .signWith(key, SignatureAlgorithm.HS256)

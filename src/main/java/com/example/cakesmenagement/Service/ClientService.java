@@ -63,7 +63,7 @@ public class ClientService {
         }
 
         // 3. מייצרים ומחזירים את הטוקן
-        return jwtUtil.generateToken(user.getEmail(), user.getRole());
+        return jwtUtil.generateToken(user.getEmail(), user.getRole(), user.getCode());
     }
     public void updateUser(int id,Users u1) {
         Users user = usersRepo.findById(id)
