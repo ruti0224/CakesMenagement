@@ -14,6 +14,7 @@ import org.springframework.web.util.HtmlUtils;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -100,28 +101,37 @@ public class ClientService {
         cakeRepo.save(cake);
         return cake.getRecommendation();
     }
-    public List<OrderItem> addToCart(Cakes c1, int userId) {
-//        לטפל בהרשאות אם המשתמש לא מחובר להעביר להרשמה
+    // בקובץ ה-Service שלך
+    public List<OrderItem> addToCart(Cakes cakeFromClient, int userId) {
+        // 1. מציאת המשתמש ב-DB
         Users user = usersRepo.findById(userId)
-                .orElseThrow(() -> new RuntimeException("id not exist"));
-        String currentUserEmail = SecurityContextHolder.getContext().getAuthentication().getName();
-        if (!user.getEmail().equals(currentUserEmail)) {
-            throw new RuntimeException("אבטחה: אין לך הרשאה להוסיף לעגלה של משתמש אחר!");
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        // 2. מציאת העוגה ה"אמיתית" ב-DB (מונע את בעיית ה-Detached Entity)
+        Cakes realCake = cakeRepo.findById(cakeFromClient.getId())
+                .orElseThrow(() -> new RuntimeException("Cake not found"));
+
+        // 3. יצירת רשימה חדשה אם העגלה ריקה (מונע NullPointerException)
+        if (user.getCakesInCart() == null) {
+            user.setCakesInCart(new ArrayList<>());
         }
-        OrderItem existingOrderItem = user.getCakesInCart().stream()
-                .filter(item -> item.getCake().getId()==c1.getId())
+
+        // 4. בדיקה האם העוגה כבר קיימת בעגלה - אם כן, רק מעדכנים כמות
+        OrderItem existingItem = user.getCakesInCart().stream()
+                .filter(item -> item.getCake().getId() == realCake.getId())
                 .findFirst()
                 .orElse(null);
-        if (existingOrderItem != null) {
-            existingOrderItem.setQuantity(existingOrderItem.getQuantity() + 1);
-        }
-        else {
+
+        if (existingItem != null) {
+            existingItem.setQuantity(existingItem.getQuantity() + 1);
+        } else {
+            // 5. אם היא לא קיימת - יצירת פריט חדש
             OrderItem newItem = new OrderItem();
-            newItem.setCake(c1);
+            newItem.setCake(realCake);
             newItem.setQuantity(1);
             user.getCakesInCart().add(newItem);
-            usersRepo.save(user);
         }
+        usersRepo.save(user);
         return user.getCakesInCart();
     }
     public List<OrderItem> removeFromCart(int cakeId, int userId) {
